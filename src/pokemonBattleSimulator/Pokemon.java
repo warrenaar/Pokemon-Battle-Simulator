@@ -39,17 +39,6 @@ public abstract class Pokemon {
 		return maxHealth;
 	}
 
-	public double getCurrentHealth() {
-		return currentHealth;
-	}
-
-	public void setCurrentHealth(double currentHealth) {
-		if (currentHealth > maxHealth) { 
-			throw new IllegalArgumentException("currentHealth cannot exceed maxHealth ");
-		}
-		this.currentHealth = currentHealth;
-	}
-
 	public double getAttack() {
 		return attack;
 	}
@@ -75,10 +64,10 @@ public abstract class Pokemon {
 	public int getSpeed() {
 		return speed;
 	}
-	
+	@Override
 	public String toString()	{
 		return String.format("%s: Type: %s, Max Health: %.2f, Current Health: %.2f, Attack: %.2f, Defense: %.2f, Speed: %d",
-				name, type, maxHealth, currentHealth, attack, defense, speed );
+				name, type, maxHealth, attack, defense, speed );
 	}
 
 }
