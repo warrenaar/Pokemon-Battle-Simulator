@@ -6,7 +6,7 @@ public abstract class Pokemon {
 	protected String name;
 	protected Type type;
 	protected double maxHealth;
-	protected double currentHealth;
+	
 	protected double attack;
 	protected double defense;
 	protected int speed;
@@ -14,7 +14,7 @@ public abstract class Pokemon {
 	public Pokemon(String name, Type type, double maxHealth,
 			double attack, double defense, int speed) {
 		//name
-		if ( name.length() == 0 ||  name.isEmpty()) {
+		if ( name.length() == 0) {
 			throw new IllegalArgumentException("Name cannot be empty. ");
 		}
 		this.name = name;
