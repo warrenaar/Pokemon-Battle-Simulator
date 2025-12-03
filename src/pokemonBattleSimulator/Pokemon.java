@@ -6,25 +6,30 @@ public abstract class Pokemon {
 	protected String name;
 	protected Type type;
 	protected double maxHealth;
-	
 	protected double attack;
 	protected double defense;
 	protected int speed;
 	
 	public Pokemon(String name, Type type, double maxHealth,
 			double attack, double defense, int speed) {
-		//name
+
 		if ( name.length() == 0) {
 			throw new IllegalArgumentException("Name cannot be empty. ");
 		}
 		this.name = name;
+		this.type = type;
 		
-		//type (params that will be read only)
-		//maxhealth
-		//speed
+		if(maxHealth < 0 ) {
+			throw new IllegalArgumentException("Max Health cannot be negative. ");
+		}
+		this.maxHealth = maxHealth;
+		setAttack(attack);
+		setDefense(defense);
 		
-		
-		
+		if(speed < 0) {
+			throw new IllegalArgumentException("Speed cannot be negative. ");
+		}
+		this.speed = speed;
 	}
 
 	public String getName() {
@@ -69,5 +74,4 @@ public abstract class Pokemon {
 		return String.format("%s: Type: %s, Max Health: %.2f, Current Health: %.2f, Attack: %.2f, Defense: %.2f, Speed: %d",
 				name, type, maxHealth, attack, defense, speed );
 	}
-
 }

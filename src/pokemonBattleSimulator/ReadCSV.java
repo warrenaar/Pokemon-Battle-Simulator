@@ -58,28 +58,12 @@ public class ReadCSV {
 	//
 	//	}
 
-
-	private static int getLineCount(File file) throws IOException {
-		int lineCount = 0;
-
-		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-			while (reader.readLine() != null) {
-				lineCount++;
-			}
-		} catch (IOException e) {
-			throw e;
-		}
-
-		return lineCount;
-	}
-
 	private static List<Pokemon> loadPokemonFromFile(String path) throws Exception {
 		File file = new File(path);
-		getLineCount(file);
 
 		List<Pokemon> pokemons = new ArrayList<>();
 
-		try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
 			String line = reader.readLine();
 
 			while ((line = reader.readLine()) != null) {
@@ -88,12 +72,14 @@ public class ReadCSV {
 				String name = parts[0];
 				Type type = parseType(parts[1]);
 				double maxHealth = Double.parseDouble(parts[2]);
+				double currentHealth = 0;
 				double attack = Double.parseDouble(parts[3]);
 				double defense = Double.parseDouble(parts[4]);
 				int speed = Integer.parseInt(parts[5]);
-
-				Pokemon pokemon = new Pokemon(name, type, maxHealth, attack, defense, speed);
+				
+				Pokemon pokemon = new BattlePokemon(name, type, maxHealth, currentHealth, attack, defense, speed);
 				pokemons.add(pokemon);
+				
 			}
 		} catch (FileNotFoundException e) {
 			System.out.println("File not found: " + e.getMessage());
@@ -106,10 +92,3 @@ public class ReadCSV {
 		return pokemons;
 	}
 }
-
-
-
-
-
-
-
