@@ -75,5 +75,10 @@ public abstract class Pokemon {
 	public int getSpeed() {
 		return speed;
 	}
+	
+	public String toString()	{
+		return String.format("%s: Type: %s, Max Health: %.2f, Current Health: %.2f, Attack: %.2f, Defense: %.2f, Speed: %d",
+				name, type, maxHealth, currentHealth, attack, defense, speed );
+	}
 
 }
