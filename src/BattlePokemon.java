@@ -4,9 +4,22 @@ public class BattlePokemon extends Pokemon implements Battle {
 
     private static final Random RNG = new Random();
 
+    // total damage this Pokemon has dealt during a battle
+    private double totalDamageDealt = 0;
+
     public BattlePokemon(String name, Type type, double maxHealth,
                          double attack, double defense, int speed) {
+
         super(name, type, maxHealth, attack, defense, speed);
+    }
+
+    // called at the start of each battle
+    public void resetDamageDealt() {
+        totalDamageDealt = 0;
+    }
+
+    public double getTotalDamageDealt() {
+        return totalDamageDealt;
     }
 
     @Override
@@ -16,40 +29,78 @@ public class BattlePokemon extends Pokemon implements Battle {
 
     @Override
     public void standardAttack(BattlePokemon target) {
-        if (this.isFainted()) {
-            System.out.println(name + " has fainted and cannot attack.");
-            return;
-        }
-        if (target.isFainted()) {
-            System.out.println(target.name + " has already fainted.");
-            return;
-        }
 
+        double base = Math.max(1, this.attack - target.defense / 2.0);
         double typeMultiplier = this.type.effectivenessAgainst(target.type);
-        double base = this.attack - target.defense / 2.0;
-        if (base < 1) {
-            base = 1;
-        }
+        double randomFactor = 0.85 + (RNG.nextDouble() * 0.3);
 
-        double randomFactor = 0.85 + (RNG.nextDouble() * 0.30); // between 0.85 and 1.15
-        double rawDamage = base * typeMultiplier * randomFactor;
-        int damage = (int) Math.round(rawDamage);
-        if (damage < 1) {
-            damage = 1;
-        }
+        int damage = (int) Math.round(base * typeMultiplier * randomFactor);
+        if (damage < 1) damage = 1;
 
-        target.takeDamage(damage);
+        // track damage dealt
+        totalDamageDealt += damage;
 
-        System.out.println(name + " attacks " + target.name + " for " + damage + " damage.");
+        target.setCurrentHealth(target.getCurrentHealth() - damage);
 
-        if (typeMultiplier > 1.0) {
+        System.out.println(this.name + " used Standard Attack on " +
+                           target.name + " for " + damage + " damage.");
+
+        if (typeMultiplier > 1) {
             System.out.println("It is super effective.");
-        } else if (typeMultiplier == 0.0) {
-            System.out.println("It has no effect.");
-        } else if (typeMultiplier < 1.0) {
+        } else if (typeMultiplier < 1 && typeMultiplier > 0) {
             System.out.println("It is not very effective.");
+        } else if (typeMultiplier == 0) {
+            System.out.println("It has no effect.");
         }
 
+        if (target.isFainted()) {
+            System.out.println(target.name + " fainted.");
+        }
+    }
+
+    @Override
+    public void coinFlipAttack(BattlePokemon target) {
+
+        System.out.println(this.name + " used Coin Flip Attack.");
+
+        boolean hits = RNG.nextBoolean();
+
+        if (!hits) {
+            System.out.println("Coin flip failed. No damage dealt.");
+            return;
+        }
+
+        System.out.println("Coin flip succeeded.");
+
+        // base power is stronger than standard attack
+        double base = Math.max(1, (this.attack * 1.5) - target.defense / 2.0);
+
+        // apply type effectiveness
+        double typeMultiplier = this.type.effectivenessAgainst(target.type);
+
+        // same random variance as standard attack
+        double randomFactor = 0.85 + (RNG.nextDouble() * 0.3);
+
+        int damage = (int) Math.round(base * typeMultiplier * randomFactor);
+        if (damage < 1) damage = 1;
+
+        // track damage dealt
+        totalDamageDealt += damage;
+
+        target.setCurrentHealth(target.getCurrentHealth() - damage);
+
+        System.out.println(target.name + " took " + damage + " damage.");
+
+        // effectiveness messages
+        if (typeMultiplier > 1) {
+            System.out.println("It is super effective.");
+        } else if (typeMultiplier < 1 && typeMultiplier > 0) {
+            System.out.println("It is not very effective.");
+        } else if (typeMultiplier == 0) {
+            System.out.println("It has no effect.");
+        }
+
+        // faint message
         if (target.isFainted()) {
             System.out.println(target.name + " fainted.");
         }

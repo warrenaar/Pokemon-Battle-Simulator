@@ -12,15 +12,15 @@ public class Team {
         this.name = name;
     }
 
-    public void add(Pokemon pokemon) {
-        if (members.size() >= 3) {
-            throw new IllegalStateException("A team can only have three Pokémon.");
-        }
-        members.add(pokemon);
-    }
-
     public String getName() {
         return name;
+    }
+
+    public void add(Pokemon pokemon) {
+        if (members.size() >= 3) {
+            throw new IllegalStateException("A team cannot have more than 3 Pokemon.");
+        }
+        members.add(pokemon);
     }
 
     public List<Pokemon> getMembers() {
@@ -31,15 +31,22 @@ public class Team {
         if (members.isEmpty()) {
             return null;
         }
+        if (activeIndex < 0 || activeIndex >= members.size()) {
+            activeIndex = 0;
+        }
         return members.get(activeIndex);
     }
 
     public void switchTo(int index) {
         if (index < 0 || index >= members.size()) {
-            throw new IllegalArgumentException("Invalid team slot.");
+            throw new IllegalArgumentException("Invalid index for team.");
         }
-        if (members.get(index).isFainted()) {
-            throw new IllegalArgumentException("Cannot switch to a fainted Pokémon.");
+        if (index == activeIndex) {
+            throw new IllegalArgumentException("You are already using that Pokemon.");
+        }
+        Pokemon target = members.get(index);
+        if (target.isFainted()) {
+            throw new IllegalArgumentException("That Pokemon has fainted and cannot be switched to.");
         }
         activeIndex = index;
     }
@@ -64,7 +71,7 @@ public class Team {
     public void printTeam() {
         for (int i = 0; i < members.size(); i++) {
             Pokemon p = members.get(i);
-            System.out.printf("%d) %s%n", i+1, p);
+            System.out.printf("%d) %s%n", i, p.toString());
         }
     }
 }

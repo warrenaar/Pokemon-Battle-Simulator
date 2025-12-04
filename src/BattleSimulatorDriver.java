@@ -4,11 +4,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class BattleSimulatorDriver {
 
-	private static final String CSV_PATH = "pokemon.csv"; // adjust path if needed
+	private static final String CSV_PATH = "pokemon.csv";
 	private static final Random RNG = new Random();
 
 	public static void main(String[] args) {
@@ -21,25 +20,19 @@ public class BattleSimulatorDriver {
 				return;
 			}
 
-			// anonymous class Comparator to satisfy that requirement
+			//anonymous comparator sorts alphabetically
 			Collections.sort(pokedex, new Comparator<Pokemon>() {
 				@Override
 				public int compare(Pokemon a, Pokemon b) {
 					return a.getName().compareToIgnoreCase(b.getName());
 				}
 			});
-
 			System.out.println("Loaded " + pokedex.size() + " Pokémon from CSV.");
+
+			sortingMenu(in, pokedex);
 
 			Team player = new Team("Player");
 			Team enemy = new Team("Enemy");
-
-
-			try {
-				pokedex =  sortPokemon(in, pokedex);
-			} catch(IllegalArgumentException e) {
-				System.out.println("Invalid input for sorting. ");
-			}
 
 			choosePlayerTeam(in, pokedex, player);
 			chooseEnemyTeam(pokedex, player, enemy);
@@ -61,62 +54,93 @@ public class BattleSimulatorDriver {
 		}
 	}
 
-	private static List<Pokemon> sortPokemon(Scanner in, List<Pokemon> pokedex) {
-		int userInput = 0;
-		while(true) {
+	//SORTING MENU 
+	private static void sortingMenu(Scanner in, List<Pokemon> pokedex) {
+		boolean done = false;
 
-			System.out.println("\nHow would you like to sort the Pokémon?");
-			System.out.println("1)  Name");
-			System.out.println("2)  Type");
-			System.out.println("3)  Attack");
-			System.out.println("4)  Defense");
-			System.out.println("5)  Speed");
-			System.out.println("6)  Unsorted");
-			try {
-				userInput = Integer.parseInt(in.nextLine());
-			} catch(NumberFormatException e) {
-				System.out.println("Invalid Input. ");
-				continue;
-			}
-			switch (userInput) {
-			case 1:
-				pokedex.sort((a, b) -> a.getName().compareToIgnoreCase(b.getName()));
-				return pokedex;
+		while (!done) {
+			System.out.println();
+			System.out.println("Current Pokémon list:");
+			printPokedex(pokedex);
 
-			case 2:
-				pokedex.sort((a, b) -> a.getType().name().compareToIgnoreCase(b.getType().name()));
-				return pokedex;
+			System.out.println();
+			System.out.println("How would you like to sort the list?");
+			System.out.println("1) Name (A–Z)");
+			System.out.println("2) Type (A–Z, then Name)");
+			System.out.println("3) Max HP (high to low)");
+			System.out.println("4) Attack (high to low)");
+			System.out.println("5) Defense (high to low)");
+			System.out.println("6) Speed (high to low)");
+			System.out.println("7) Done sorting, choose my team");
 
-			case 3:
-				pokedex.sort((a, b) -> Double.compare(b.getAttack(), a.getAttack()));
-				return pokedex;
+			System.out.print("Enter choice: ");
+			String choice = in.nextLine().trim();
 
-			case 4:
-				pokedex.sort((a, b) -> Double.compare(b.getDefense(), a.getDefense()));
-				return pokedex;
-
-			case 5:
-				pokedex.sort((a, b) -> Integer.compare(b.getSpeed(), a.getSpeed()));
-				return pokedex;
-
-			case 6: 
-				return pokedex; 
-
+			switch (choice) {
+			case "1":
+				// Name A–Z
+				pokedex.sort(
+						(a, b) -> a.getName().compareToIgnoreCase(b.getName())
+						);
+				break;
+			case "2":
+				// Type A–Z, then Name
+				pokedex.sort((a, b) -> {
+					int typeCmp = a.getType().name()
+							.compareToIgnoreCase(b.getType().name());
+					if (typeCmp != 0) {
+						return typeCmp;
+					}
+					return a.getName().compareToIgnoreCase(b.getName());
+				});
+				break;
+			case "3":
+				// Max HP high -> low
+				pokedex.sort(
+						(a, b) -> Double.compare(b.getMaxHealth(), a.getMaxHealth())
+						);
+				break;
+			case "4":
+				// Attack high -> low
+				pokedex.sort(
+						(a, b) -> Double.compare(b.getAttack(), a.getAttack())
+						);
+				break;
+			case "5":
+				// Defense high -> low
+				pokedex.sort(
+						(a, b) -> Double.compare(b.getDefense(), a.getDefense())
+						);
+				break;
+			case "6":
+				// Speed high -> low
+				pokedex.sort(
+						(a, b) -> Integer.compare(b.getSpeed(), a.getSpeed())
+						);
+				break;
+			case "7":
+				done = true;
+				break;
 			default:
-				System.out.println("Invalid input. ");
+				System.out.println("Please enter a number between 1 and 7.");
 			}
+		}
+	}
+
+	private static void printPokedex(List<Pokemon> pokedex) {
+		for (int i = 0; i < pokedex.size(); i++) {
+			System.out.printf("%d) %s%n", i, pokedex.get(i));
 		}
 	}
 
 	private static void choosePlayerTeam(Scanner in, List<Pokemon> pokedex, Team player) {
 		System.out.println("Choose your team of three Pokémon.");
+
 		int limit = pokedex.size();
 
 		System.out.println();
 		System.out.println("Available Pokémon:");
-		for (int i = 0; i < limit; i++) {
-			System.out.printf("%d) %s%n", i, pokedex.get(i).toString());
-		}
+		printPokedex(pokedex);
 
 		while (player.getMembers().size() < 3) {
 			int memberNumber = player.getMembers().size() + 1;
@@ -143,7 +167,6 @@ public class BattleSimulatorDriver {
 			}
 		}
 	}
-
 	private static void chooseEnemyTeam(List<Pokemon> pokedex, Team player, Team enemy) {
 
 		Collections.shuffle(pokedex, RNG);

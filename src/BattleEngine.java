@@ -1,13 +1,20 @@
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 public final class BattleEngine {
-  
+
+    private static final Random RNG = new Random();
     private static final int SWITCH_SPEED_BONUS = 50;
+
     private BattleEngine() {}
 
     public static void runBattle(Scanner in, Team player, Team enemy) {
+
+        // reset damage counters for this battle
+        resetDamageDealt(player);
+        resetDamageDealt(enemy);
 
         int playerSpeedBonus = 0;
         int enemySpeedBonus = 0;
@@ -18,8 +25,7 @@ public final class BattleEngine {
 
         while (!player.allFainted() && !enemy.allFainted()) {
 
-            // handle fainted actives and forced switches before the round
-            boolean playerForced = ensureActiveNotFainted(in, player, true);
+            boolean playerForced = ensurePlayerActiveNotFainted(in, player);
             boolean enemyForced = ensureEnemyActiveNotFainted(enemy);
 
             if (player.allFainted() || enemy.allFainted()) {
@@ -40,11 +46,9 @@ public final class BattleEngine {
             System.out.println("Your active Pokémon: " + playerActive);
             System.out.println("Enemy active Pokémon: " + enemyActive);
 
-            // calculate effective speeds with bonuses
             int playerEffectiveSpeed = playerActive.getSpeed() + playerSpeedBonus;
             int enemyEffectiveSpeed = enemyActive.getSpeed() + enemySpeedBonus;
 
-            // bonuses are single use per round
             playerSpeedBonus = 0;
             enemySpeedBonus = 0;
 
@@ -52,14 +56,22 @@ public final class BattleEngine {
 
             if (playerFirst) {
                 playerSpeedBonus = playerTurn(in, player, enemy);
-                if (!enemy.allFainted()) {
-                    enemySpeedBonus = enemyTurn(enemy, player);
+
+                // If enemy Pokémon fainted, skip their move this round
+                if (enemy.allFainted() || enemy.getActive().isFainted()) {
+                    continue;
                 }
+
+                enemySpeedBonus = enemyTurn(enemy, player);
             } else {
                 enemySpeedBonus = enemyTurn(enemy, player);
-                if (!player.allFainted()) {
-                    playerSpeedBonus = playerTurn(in, player, enemy);
+
+                // If player Pokémon fainted, skip their move this round
+                if (player.allFainted() || player.getActive().isFainted()) {
+                    continue;
                 }
+
+                playerSpeedBonus = playerTurn(in, player, enemy);
             }
         }
 
@@ -68,6 +80,42 @@ public final class BattleEngine {
         } else {
             System.out.println("All enemy Pokémon fainted. You win.");
         }
+
+        // After the battle, print damage logs for each side
+        printBattleLog(player, "Player");
+        printBattleLog(enemy, "Enemy");
+    }
+
+    // show how much damage each Pokemon on a team dealt
+    private static void printBattleLog(Team team, String label) {
+        System.out.println();
+        System.out.println(label + " battle log (total damage dealt):");
+
+        boolean any = false;
+        for (Pokemon p : team.getMembers()) {
+            if (p instanceof BattlePokemon) {
+                BattlePokemon bp = (BattlePokemon) p;
+                double total = bp.getTotalDamageDealt();
+                if (total > 0) {
+                    any = true;
+                    System.out.printf("- %s dealt %.0f total damage.%n",
+                            bp.getName(), total);
+                }
+            }
+        }
+
+        if (!any) {
+            System.out.println("- No damage dealt.");
+        }
+    }
+
+    // reset damage counters for all BattlePokemon on a team
+    private static void resetDamageDealt(Team team) {
+        for (Pokemon p : team.getMembers()) {
+            if (p instanceof BattlePokemon) {
+                ((BattlePokemon) p).resetDamageDealt();
+            }
+        }
     }
 
     // returns speed bonus for next round if switched
@@ -75,21 +123,28 @@ public final class BattleEngine {
         while (true) {
             System.out.println();
             System.out.println("Your turn. Choose an action.");
-            System.out.println("1) Attack");
-            System.out.println("2) Switch");
+            System.out.println("1) Standard Attack");
+            System.out.println("2) Coin Flip Attack");
+            System.out.println("3) Switch");
 
             String choice = in.nextLine().trim();
+            BattlePokemon attacker = (BattlePokemon) player.getActive();
+            BattlePokemon defender = (BattlePokemon) enemy.getActive();
+
             if (choice.equals("1")) {
-                BattlePokemon attacker = (BattlePokemon) player.getActive();
-                BattlePokemon defender = (BattlePokemon) enemy.getActive();
                 attacker.standardAttack(defender);
                 return 0;
             } else if (choice.equals("2")) {
+                attacker.coinFlipAttack(defender);
+                return 0;
+            } else if (choice.equals("3")) {
                 if (handlePlayerSwitch(in, player)) {
                     return SWITCH_SPEED_BONUS;
+                } else {
+                    continue;
                 }
             } else {
-                System.out.println("Invalid choice, please enter 1 or 2.");
+                System.out.println("Please choose 1, 2, or 3.");
             }
         }
     }
@@ -119,12 +174,18 @@ public final class BattleEngine {
             }
         }
 
-        attacker.standardAttack(defender);
+        if (RNG.nextBoolean()) {
+            attacker.standardAttack(defender);
+        } else {
+            attacker.coinFlipAttack(defender);
+        }
+
         return 0;
     }
 
-    // forces player to switch if active fainted
-    private static boolean ensureActiveNotFainted(Scanner in, Team team, boolean isPlayer) {
+    // ensure the player has a non fainted active Pokémon
+    // returns true if a forced switch happened
+    private static boolean ensurePlayerActiveNotFainted(Scanner in, Team team) {
 
         Pokemon active = team.getActive();
         if (active != null && !active.isFainted()) {
@@ -135,35 +196,43 @@ public final class BattleEngine {
             return false;
         }
 
-        if (isPlayer) {
-            System.out.println();
-            System.out.println("Your active Pokémon has fainted. You must switch.");
-            while (true) {
-                if (handlePlayerSwitch(in, team)) {
-                    return true;
-                }
-            }
-        } else {
-            // enemy forced switch
-            List<Pokemon> healthy = team.getHealthyMembers();
-            if (!healthy.isEmpty()) {
-                Pokemon best = healthy.stream()
-                        .max(Comparator.comparingDouble(Pokemon::getCurrentHealth))
-                        .orElse(null);
-                if (best != null) {
-                    int index = team.getMembers().indexOf(best);
-                    team.switchTo(index);
-                    System.out.println("Enemy switches to " + team.getActive().getName() + ".");
-                    return true;
-                }
+        System.out.println();
+        System.out.println("Your active Pokémon has fainted. You must switch.");
+
+        while (true) {
+            if (handlePlayerSwitch(in, team)) {
+                return true;
             }
         }
-        return false;
     }
 
-    // wrapper for clarity, separate from player version
+    // ensure the enemy has a non fainted active Pokémon
+    // returns true if a forced switch happened
     private static boolean ensureEnemyActiveNotFainted(Team enemy) {
-        return ensureActiveNotFainted(null, enemy, false);
+
+        Pokemon active = enemy.getActive();
+        if (active != null && !active.isFainted()) {
+            return false;
+        }
+
+        if (enemy.allFainted()) {
+            return false;
+        }
+
+        List<Pokemon> healthy = enemy.getHealthyMembers();
+        if (!healthy.isEmpty()) {
+            Pokemon best = healthy.stream()
+                    .max(Comparator.comparingDouble(Pokemon::getCurrentHealth))
+                    .orElse(null);
+            if (best != null) {
+                int index = enemy.getMembers().indexOf(best);
+                enemy.switchTo(index);
+                System.out.println("Enemy switches to " + enemy.getActive().getName() + ".");
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static boolean handlePlayerSwitch(Scanner in, Team team) {
@@ -178,10 +247,9 @@ public final class BattleEngine {
             return true;
         } catch (NumberFormatException e) {
             System.out.println("Please enter a number.");
-        } catch (IllegalArgumentException e) {	
+        } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
         return false;
     }
 }
-
