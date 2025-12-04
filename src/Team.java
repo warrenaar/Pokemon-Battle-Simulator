@@ -64,7 +64,7 @@ public class Team {
     public void printTeam() {
         for (int i = 0; i < members.size(); i++) {
             Pokemon p = members.get(i);
-            System.out.printf("%d) %s%n", i, p.toString());
+            System.out.printf("%d) %s%n", i+1, p);
         }
     }
 }

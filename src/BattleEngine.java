@@ -158,7 +158,6 @@ public final class BattleEngine {
                 }
             }
         }
-
         return false;
     }
 
@@ -179,7 +178,7 @@ public final class BattleEngine {
             return true;
         } catch (NumberFormatException e) {
             System.out.println("Please enter a number.");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {	
             System.out.println(e.getMessage());
         }
         return false;
