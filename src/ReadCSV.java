@@ -15,7 +15,7 @@ public final class ReadCSV {
             while ((line = reader.readLine()) != null) {
 
                 String[] parts = line.split(",");
-                if (parts.length < 6) continue;
+                if (parts.length != 6) continue;
 
                 String name = parts[0].trim();
                 Type type = Type.valueOf(parts[1].trim().toUpperCase());

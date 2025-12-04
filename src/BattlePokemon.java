@@ -30,7 +30,7 @@ public class BattlePokemon extends Pokemon implements Battle {
     public void standardAttack(BattlePokemon target) {
 
         double base = attack - target.defense / 2.0;
-        double typeMultiplier = this.type.effectivenessAgainst(target.type);
+        double typeMultiplier = type.effectivenessAgainst(target.type);
         double randomFactor = 0.85 + (RNG.nextDouble() * 0.3);
 
         double damage = (base * typeMultiplier * randomFactor);
@@ -59,22 +59,22 @@ public class BattlePokemon extends Pokemon implements Battle {
     @Override
     public void coinFlipAttack(BattlePokemon target) {
 
-        System.out.println(this.name + " used Coin Flip Attack.");
+        System.out.printf("%s used Coin Flip Attack.", name);
 
         boolean hits = RNG.nextBoolean();
 
         if (!hits) {
-            System.out.println("Coin flip failed. No damage dealt.");
+            System.out.println(" Coin flip failed. No damage dealt.");
             return;
         }
 
-        System.out.println("Coin flip succeeded.");
+        System.out.println(" Coin flip succeeded.");
 
         // base power is stronger than standard attack
-        double base = this.attack * 1.5 - target.defense / 2.0;
+        double base = attack * 1.5 - target.defense / 2.0;
 
         // apply type effectiveness
-        double typeMultiplier = this.type.effectivenessAgainst(target.type);
+        double typeMultiplier = type.effectivenessAgainst(target.type);
 
         // same random variance as standard attack
         double randomFactor = 0.85 + (RNG.nextDouble() * 0.3);
@@ -88,7 +88,7 @@ public class BattlePokemon extends Pokemon implements Battle {
 
         target.setCurrentHealth(target.getCurrentHealth() - damage);
 
-        System.out.println(target.name + " took " + damage + " damage.");
+        System.out.printf("%s took %.1f damage.", target.name, damage);
 
         // effectiveness messages
         if (typeMultiplier > 1) {

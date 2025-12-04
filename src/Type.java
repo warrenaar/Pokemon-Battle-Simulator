@@ -15,7 +15,7 @@ public enum Type {
 
     public double effectivenessAgainst(Type defender) {
 
-        if (this == FIRE) {
+    	if (this == FIRE) {
             if (defender == GRASS || defender == ICE) return 2.0;
             if (defender == FIRE || defender == WATER || defender == ROCK) return 0.5;
         }

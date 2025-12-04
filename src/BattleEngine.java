@@ -4,24 +4,17 @@ import java.util.Random;
 import java.util.Scanner;
 
 public final class BattleEngine {
-
     private static final Random RNG = new Random();
     private static final int SWITCH_SPEED_BONUS = 50;
 
-    private BattleEngine() {}
-
     public static void runBattle(Scanner in, Team player, Team enemy) {
-
-        // reset damage counters for this battle
-        resetDamageDealt(player);
-        resetDamageDealt(enemy);
 
         int playerSpeedBonus = 0;
         int enemySpeedBonus = 0;
 
-        System.out.println("Battle begins between " + player.getName() + " and " + enemy.getName() + ".");
-        System.out.println(player.getActive().battleCry());
-        System.out.println(enemy.getActive().battleCry());
+        System.out.printf("Battle begins between %s and %s.", player.getName(), enemy.getName());
+        System.out.println(player.getActive());
+        System.out.println(enemy.getActive());
 
         while (!player.allFainted() && !enemy.allFainted()) {
 
@@ -43,8 +36,8 @@ public final class BattleEngine {
             Pokemon enemyActive = enemy.getActive();
 
             System.out.println();
-            System.out.println("Your active Pokémon: " + playerActive);
-            System.out.println("Enemy active Pokémon: " + enemyActive);
+            System.out.printf("Your active Pokémon: ", playerActive);
+            System.out.printf("Enemy active Pokémon: ", enemyActive);
 
             int playerEffectiveSpeed = playerActive.getSpeed() + playerSpeedBonus;
             int enemyEffectiveSpeed = enemyActive.getSpeed() + enemySpeedBonus;
@@ -87,9 +80,9 @@ public final class BattleEngine {
     }
 
     // show how much damage each Pokemon on a team dealt
-    private static void printBattleLog(Team team, String label) {
+    private static void printBattleLog(Team team, String teamName) {
         System.out.println();
-        System.out.println(label + " battle log (total damage dealt):");
+        System.out.printf("%s battle log (total damage dealt):%n", teamName);
 
         boolean any = false;
         for (Pokemon p : team.getMembers()) {
@@ -231,7 +224,6 @@ public final class BattleEngine {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -243,7 +235,7 @@ public final class BattleEngine {
         try {
             int index = Integer.parseInt(line);
             team.switchTo(index-1);
-            System.out.println("You switched to " + team.getActive().getName() + ".");
+            System.out.printf("You switched to %s.", team.getActive().getName());
             return true;
         } catch (NumberFormatException e) {
             System.out.println("Please enter a number.");

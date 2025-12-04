@@ -134,12 +134,12 @@ public class BattleSimulatorDriver {
 
 	private static void printPokedex(List<Pokemon> pokedex) {
 		for (int i = 0; i < pokedex.size(); i++) {
-			System.out.printf("%d) %s%n", i, pokedex.get(i));
+			System.out.printf("%d) %s%n", i+1, pokedex.get(i));
 		}
 	}
 
 	private static void choosePlayerTeam(Scanner in, List<Pokemon> pokedex, Team player) {
-		System.out.println("Choose your team of three Pokémon.");
+		System.out.println("Choose your team of three Pokemon.");
 
 		int limit = pokedex.size();
 
@@ -153,7 +153,7 @@ public class BattleSimulatorDriver {
 
 			String line = in.nextLine().trim();
 			try {
-				int index = Integer.parseInt(line);
+				int index =  Integer.parseInt(line) - 1;
 				if (index < 0 || index >= limit) {
 					System.out.println("Index out of range.");
 					continue;
