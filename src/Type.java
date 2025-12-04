@@ -13,7 +13,6 @@ public enum Type {
     PSYCHIC,
     ICE;
 
-    // Very simplified type effectiveness
     public double effectivenessAgainst(Type defender) {
 
         if (this == FIRE) {

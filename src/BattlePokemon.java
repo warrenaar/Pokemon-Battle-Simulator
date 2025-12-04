@@ -4,7 +4,6 @@ public class BattlePokemon extends Pokemon implements Battle {
 
     private static final Random RNG = new Random();
 
-    // total damage this Pokemon has dealt during a battle
     private double totalDamageDealt = 0;
 
     public BattlePokemon(String name, Type type, double maxHealth,
@@ -30,11 +29,11 @@ public class BattlePokemon extends Pokemon implements Battle {
     @Override
     public void standardAttack(BattlePokemon target) {
 
-        double base = Math.max(1, this.attack - target.defense / 2.0);
+        double base = attack - target.defense / 2.0;
         double typeMultiplier = this.type.effectivenessAgainst(target.type);
         double randomFactor = 0.85 + (RNG.nextDouble() * 0.3);
 
-        int damage = (int) Math.round(base * typeMultiplier * randomFactor);
+        double damage = (base * typeMultiplier * randomFactor);
         if (damage < 1) damage = 1;
 
         // track damage dealt
@@ -42,15 +41,14 @@ public class BattlePokemon extends Pokemon implements Battle {
 
         target.setCurrentHealth(target.getCurrentHealth() - damage);
 
-        System.out.println(this.name + " used Standard Attack on " +
-                           target.name + " for " + damage + " damage.");
+        System.out.printf("%s used Standard Attack on %s for %.1f damage.", name, target.name, damage );
 
         if (typeMultiplier > 1) {
-            System.out.println("It is super effective.");
+            System.out.println(" It is super effective.");
         } else if (typeMultiplier < 1 && typeMultiplier > 0) {
-            System.out.println("It is not very effective.");
+            System.out.println(" It is not very effective.");
         } else if (typeMultiplier == 0) {
-            System.out.println("It has no effect.");
+            System.out.println(" It has no effect.");
         }
 
         if (target.isFainted()) {
@@ -73,7 +71,7 @@ public class BattlePokemon extends Pokemon implements Battle {
         System.out.println("Coin flip succeeded.");
 
         // base power is stronger than standard attack
-        double base = Math.max(1, (this.attack * 1.5) - target.defense / 2.0);
+        double base = this.attack * 1.5 - target.defense / 2.0;
 
         // apply type effectiveness
         double typeMultiplier = this.type.effectivenessAgainst(target.type);
@@ -81,10 +79,11 @@ public class BattlePokemon extends Pokemon implements Battle {
         // same random variance as standard attack
         double randomFactor = 0.85 + (RNG.nextDouble() * 0.3);
 
-        int damage = (int) Math.round(base * typeMultiplier * randomFactor);
-        if (damage < 1) damage = 1;
+        double damage = (base * typeMultiplier * randomFactor);
+        if (damage < 1) {
+        	damage = 1;
+        }
 
-        // track damage dealt
         totalDamageDealt += damage;
 
         target.setCurrentHealth(target.getCurrentHealth() - damage);
@@ -100,7 +99,6 @@ public class BattlePokemon extends Pokemon implements Battle {
             System.out.println("It has no effect.");
         }
 
-        // faint message
         if (target.isFainted()) {
             System.out.println(target.name + " fainted.");
         }

@@ -5,11 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ReadCSV {
-
-    private ReadCSV() {}
-
     public static List<Pokemon> loadPokemonFromFile(String path) throws IOException {
-
         List<Pokemon> result = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
@@ -17,7 +13,6 @@ public final class ReadCSV {
             String line = reader.readLine(); // skip header
 
             while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
 
                 String[] parts = line.split(",");
                 if (parts.length < 6) continue;
@@ -37,11 +32,9 @@ public final class ReadCSV {
                         defense,
                         speed
                 );
-
                 result.add(p);
             }
         }
-
         return result;
     }
 }

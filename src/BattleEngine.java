@@ -98,7 +98,7 @@ public final class BattleEngine {
                 double total = bp.getTotalDamageDealt();
                 if (total > 0) {
                     any = true;
-                    System.out.printf("- %s dealt %.0f total damage.%n",
+                    System.out.printf("- %s dealt %.1f total damage.%n",
                             bp.getName(), total);
                 }
             }
@@ -242,7 +242,7 @@ public final class BattleEngine {
         String line = in.nextLine().trim();
         try {
             int index = Integer.parseInt(line);
-            team.switchTo(index);
+            team.switchTo(index-1);
             System.out.println("You switched to " + team.getActive().getName() + ".");
             return true;
         } catch (NumberFormatException e) {

@@ -11,12 +11,36 @@ public abstract class Pokemon {
     public Pokemon(String name, Type type, double maxHealth,
                    double attack, double defense, int speed) {
 
-        this.name = name;
+        if (name == null || name.trim().length() == 0) {
+            throw new IllegalArgumentException("Name cannot be null or empty.");
+        }
+        this.name = name.trim();
+
+        if (type == null) {
+            throw new IllegalArgumentException("Type cannot be null.");
+        }
         this.type = type;
+
+        if (maxHealth <= 0) {
+            throw new IllegalArgumentException("maxHealth must be greater than 0.");
+        }
         this.maxHealth = maxHealth;
-        this.currentHealth = maxHealth;   // start at full health
+       
+        this.currentHealth = maxHealth;
+
+        if (attack < 0) {
+            throw new IllegalArgumentException("Attack cannot be negative.");
+        }
         this.attack = attack;
+
+        if (defense < 0) {
+            throw new IllegalArgumentException("Defense cannot be negative.");
+        }
         this.defense = defense;
+
+        if (speed < 0) {
+            throw new IllegalArgumentException("Speed cannot be negative.");
+        }
         this.speed = speed;
     }
 
@@ -64,8 +88,7 @@ public abstract class Pokemon {
     public String toString() {
         return String.format(
                 "%s [Type: %s, HP: %.1f/%.1f, Atk: %.1f, Def: %.1f, Spd: %d]",
-                name, type, currentHealth, maxHealth, attack, defense, speed
-        );
+                name, type, currentHealth, maxHealth, attack, defense, speed);
     }
 }
 

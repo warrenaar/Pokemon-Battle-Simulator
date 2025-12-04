@@ -5,6 +5,19 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
+/* Stretch goals attempted:
+ * 
+ * 2. coinflip : RNG to deal massive damage or lose a turn trying 
+ * 
+ * 4. Attack Multipliers : based on enum type matchups
+ * 
+ * 5. battleLog : differentiated by team, keeping track of 
+ * 	  damage dealt by each pokemon
+ * 
+ * 6. "ai" enemy that selects from pool
+ */
+
+
 public class BattleSimulatorDriver {
 
 	private static final String CSV_PATH = "pokemon.csv";
@@ -54,7 +67,6 @@ public class BattleSimulatorDriver {
 		}
 	}
 
-	//SORTING MENU 
 	private static void sortingMenu(Scanner in, List<Pokemon> pokedex) {
 		boolean done = false;
 
@@ -65,26 +77,23 @@ public class BattleSimulatorDriver {
 
 			System.out.println();
 			System.out.println("How would you like to sort the list?");
-			System.out.println("1) Name (A–Z)");
-			System.out.println("2) Type (A–Z, then Name)");
-			System.out.println("3) Max HP (high to low)");
-			System.out.println("4) Attack (high to low)");
-			System.out.println("5) Defense (high to low)");
-			System.out.println("6) Speed (high to low)");
+			System.out.println("1) Name ");
+			System.out.println("2) Type ");
+			System.out.println("3) Max HP ");
+			System.out.println("4) Attack (descending)");
+			System.out.println("5) Defense (descending)");
+			System.out.println("6) Speed (descending)");
 			System.out.println("7) Done sorting, choose my team");
-
-			System.out.print("Enter choice: ");
+			System.out.println("Enter choice: ");
 			String choice = in.nextLine().trim();
 
 			switch (choice) {
 			case "1":
-				// Name A–Z
 				pokedex.sort(
 						(a, b) -> a.getName().compareToIgnoreCase(b.getName())
 						);
 				break;
 			case "2":
-				// Type A–Z, then Name
 				pokedex.sort((a, b) -> {
 					int typeCmp = a.getType().name()
 							.compareToIgnoreCase(b.getType().name());
@@ -95,25 +104,21 @@ public class BattleSimulatorDriver {
 				});
 				break;
 			case "3":
-				// Max HP high -> low
 				pokedex.sort(
 						(a, b) -> Double.compare(b.getMaxHealth(), a.getMaxHealth())
 						);
 				break;
 			case "4":
-				// Attack high -> low
 				pokedex.sort(
 						(a, b) -> Double.compare(b.getAttack(), a.getAttack())
 						);
 				break;
 			case "5":
-				// Defense high -> low
 				pokedex.sort(
 						(a, b) -> Double.compare(b.getDefense(), a.getDefense())
 						);
 				break;
 			case "6":
-				// Speed high -> low
 				pokedex.sort(
 						(a, b) -> Integer.compare(b.getSpeed(), a.getSpeed())
 						);
@@ -168,7 +173,6 @@ public class BattleSimulatorDriver {
 		}
 	}
 	private static void chooseEnemyTeam(List<Pokemon> pokedex, Team player, Team enemy) {
-
 		Collections.shuffle(pokedex, RNG);
 
 		for (Pokemon p : pokedex) {

@@ -9,7 +9,10 @@ public class Team {
     private int activeIndex = 0;
 
     public Team(String name) {
-        this.name = name;
+      if( name == null || name.trim().length() == 0) {
+    	  throw new IllegalArgumentException("name cannot be empty or null");
+      }
+    	this.name = name;
     }
 
     public String getName() {
@@ -71,7 +74,7 @@ public class Team {
     public void printTeam() {
         for (int i = 0; i < members.size(); i++) {
             Pokemon p = members.get(i);
-            System.out.printf("%d) %s%n", i, p.toString());
+            System.out.printf("%d) %s%n", i+1, p);
         }
     }
 }
